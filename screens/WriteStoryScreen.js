@@ -1,33 +1,73 @@
 import React from 'react';
-import { StyleSheet, Text, View,TextInput,TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View,TextInput,TouchableOpacity,Alert,KeyboardAvoidingView,AndroidToast, ToastAndroid} from 'react-native';
 import {Header} from 'react-native-elements';
+import db from '../config';
+import firebase from 'firebase';
 
 
 export default class WriteStoryScreen extends React.Component {
-    
+  constructor(){
+    super()
+    this.state={
+      title:'',
+      author:'',
+      story:''
+    }
+  }
+  submitStory=async()=>{
+  var transactionMessage="Story Issued"
+  db.collection('stories').add({
+      'title':this.state.title,
+      'author':this.state.author,
+      'story':this.state.story,
+    })
+    this.setState({
+      title:'',
+      story:'',
+      author:''
+    })
+   ToastAndroid.show(transactionMessage,ToastAndroid.SHORT);
+  } 
   render(){
   return (
-      <View>
+     <View>
         <Header 
           backgroundColor={'#913d88'}
           centerComponent={{
                 text: 'Story Hub',
                 style: { color: '#fff', fontSize: 25,fontWeight:'bold'},
               }}/>
+        <KeyboardAvoidingView behavior={"padding"} enabled>
         <View style={styles.inputView}>
-        <TextInput style={styles.inputBox} placeholder="Story Title"/>
+        <TextInput style={styles.inputBox} 
+        placeholder = {"Story Title"}
+        onChangeText={(text)=>{
+          this.setState({
+            title:text
+          })
+        }} value={this.state.title}/>
         </View>
         <View style={styles.inputView}>
-        <TextInput style={styles.inputBox} placeholder="Author"/>
+        <TextInput style={styles.inputBox} placeholder="Author"
+        onChangeText={(text)=>{
+          this.setState({
+            author:text
+          })
+        }} value={this.state.author}/>
         </View>
         <View style={styles.inputView}>
-        <TextInput style={styles.inputBox}  placeholder="Write Your Story"/>
+        <TextInput style={styles.inputBox}  placeholder="Write Your Story" multiline={true} 
+        onChangeText={(text)=>{
+          this.setState({
+            story:text
+          })
+        }} value={this.state.story}/>
         </View>
-        <TouchableOpacity style={styles.scanButton}>
+        <TouchableOpacity style={styles.scanButton} onPress={this.submitStory}>
             <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
-        </View>   
-        
+        </KeyboardAvoidingView>   
+        </View>
     
   );
 }
